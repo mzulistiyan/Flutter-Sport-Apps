@@ -1,5 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_application_sport_apps/cubit/auth_cubit.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/home_page.dart';
+import 'package:flutter_application_sport_apps/presentation/pages/registrasi_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,6 +17,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool isChecked = false;
+  TextEditingController passwordController = TextEditingController(text: '');
+  TextEditingController emailController = TextEditingController(text: '');
   @override
   Widget build(BuildContext context) {
     Color getColor(Set<MaterialState> states) {
@@ -60,7 +67,8 @@ class _LoginPageState extends State<LoginPage> {
                             decoration: TextDecoration.underline,
                           ),
                         ),
-                        const TextField(
+                        TextField(
+                          controller: emailController,
                           decoration: InputDecoration(
                             hintText: 'Email',
                           ),
@@ -68,8 +76,10 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        const TextField(
-                          decoration: InputDecoration(
+                        TextField(
+                          obscureText: true,
+                          controller: passwordController,
+                          decoration: const InputDecoration(
                             hintText: 'Password',
                           ),
                         )
@@ -80,23 +90,47 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(
                   height: 20,
                 ),
-                Container(
-                  width: double.infinity,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: const Color(0xff0076CB),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: TextButton(
-                    onPressed: () {
-                      Get.to(const HomePage());
-                    },
-                    child: Text(
-                      'LOGIN',
-                      style: GoogleFonts.poppins(
-                          color: Colors.white, fontWeight: FontWeight.w600),
-                    ),
-                  ),
+                BlocConsumer<AuthCubit, AuthState>(
+                  listener: (context, state) {
+                    if (state is AuthSuccess) {
+                      Get.off(HomePage());
+                    } else if (state is AuthFailed) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text(state.error),
+                        ),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is AuthLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    return Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: const Color(0xff0076CB),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          context.read<AuthCubit>().signIn(
+                                email: emailController.text,
+                                password: passwordController.text,
+                              );
+                        },
+                        child: Text(
+                          'LOGIN',
+                          style: GoogleFonts.poppins(
+                              color: Colors.white, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 Row(
                   children: [
@@ -169,7 +203,7 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an Account ?',
+                      "don't have an account ?",
                       style: GoogleFonts.poppins(
                           color: Color(0xff0076CB),
                           fontSize: 12,
@@ -178,12 +212,17 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(
                       width: 5,
                     ),
-                    Text(
-                      'Sign In Now',
-                      style: GoogleFonts.poppins(
-                          color: Color(0xff0076CB),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold),
+                    GestureDetector(
+                      onTap: () {
+                        Get.to(RegistrasiPage());
+                      },
+                      child: Text(
+                        'Sign Up Now',
+                        style: GoogleFonts.poppins(
+                            color: Color(0xff0076CB),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold),
+                      ),
                     )
                   ],
                 )

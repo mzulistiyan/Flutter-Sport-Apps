@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_sport_apps/cubit/auth_cubit.dart';
+import 'package:flutter_application_sport_apps/cubit/olahraga_cubit.dart';
+import 'package:flutter_application_sport_apps/presentation/pages/login_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -92,22 +96,47 @@ class LogoutPage extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Container(
-                            width: 125,
-                            height: 35,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: const Color(0xff0076CB),
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'YES',
-                                style: GoogleFonts.montserrat(
-                                    color: const Color(0xff0076CB)),
-                              ),
-                            ),
+                          BlocConsumer<AuthCubit, AuthState>(
+                            listener: (context, state) {
+                              if (state is AuthFailed) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: Colors.red,
+                                    content: Text(state.error),
+                                  ),
+                                );
+                              } else if (state is AuthInitial) {
+                                Get.off(LoginPage());
+                              }
+                            },
+                            builder: (context, state) {
+                              if (state is AuthLoading) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                              return GestureDetector(
+                                onTap: () =>
+                                    context.read<AuthCubit>().signOut(),
+                                child: Container(
+                                  width: 125,
+                                  height: 35,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: const Color(0xff0076CB),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'YES',
+                                      style: GoogleFonts.montserrat(
+                                          color: const Color(0xff0076CB)),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           )
                         ],
                       )

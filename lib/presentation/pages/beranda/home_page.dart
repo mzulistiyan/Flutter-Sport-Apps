@@ -1,25 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_sport_apps/cubit/olahraga_cubit.dart';
+import 'package:flutter_application_sport_apps/models/olahraga_model.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/course/course_page.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/mailbox/mailbox_page.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/menu/logout_page.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/menu/profile_page.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/menu/setting_page.dart';
+import 'package:flutter_application_sport_apps/presentation/pages/beranda/olahraga/crud/create_olahraga_page.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/olahraga/gym/gym_page.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/olahraga/running/running_page.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/onprogres/onprogres_page.dart';
 
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/search_page.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/time_line_page.dart';
+import 'package:flutter_application_sport_apps/presentation/widget/olahraga_card.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'olahraga/volley/volley_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  void initState() {
+    // TODO: implement initState
+    context.read<OlahragaCubit>().fetchFod();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    Widget olahragaModel(List<OlahragaModel> olahraga) {
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Column(
+          children: [
+            Row(
+              children: olahraga.map((OlahragaModel olahraga) {
+                return OlahragaCard(olahraga);
+              }).toList(),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
           child: ListView(
@@ -235,19 +266,22 @@ class HomePage extends StatelessWidget {
                         color: const Color(0xff0076CB),
                       ),
                     ),
-                    Container(
-                      width: 18,
-                      height: 18,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xff0076CB),
-                            width: 2,
-                          )),
-                      child: const Icon(
-                        Icons.more_horiz,
-                        size: 15,
-                        color: Color(0xff0076CB),
+                    GestureDetector(
+                      onTap: () => Get.to(UploadingImageToFirebaseStorage()),
+                      child: Container(
+                        width: 18,
+                        height: 18,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xff0076CB),
+                              width: 2,
+                            )),
+                        child: const Icon(
+                          Icons.more_horiz,
+                          size: 15,
+                          color: Color(0xff0076CB),
+                        ),
                       ),
                     )
                   ],
@@ -263,36 +297,25 @@ class HomePage extends StatelessWidget {
                 SizedBox(
                   height: 10,
                 ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Image.asset(
-                        'assets/images/image_1.png',
-                        width: 100,
-                        height: 150,
-                      ),
-                      SizedBox(width: 20),
-                      Image.asset(
-                        'assets/images/image_2.png',
-                        width: 100,
-                        height: 150,
-                      ),
-                      SizedBox(width: 20),
-                      Image.asset(
-                        'assets/images/image_3.png',
-                        width: 100,
-                        height: 150,
-                      ),
-                      SizedBox(width: 20),
-                      Image.asset(
-                        'assets/images/image_4.png',
-                        width: 100,
-                        height: 150,
-                      ),
-                    ],
-                  ),
+                BlocConsumer<OlahragaCubit, OlahragaState>(
+                  listener: (context, state) {
+                    if (state is OlahragaFailed) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text(state.error),
+                        ),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is OlahragaSuccess) {
+                      return olahragaModel(state.olahragas);
+                    }
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  },
                 )
               ],
             ),
