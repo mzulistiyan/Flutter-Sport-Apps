@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_sport_apps/cubit/course_cubit.dart';
+import 'package:flutter_application_sport_apps/models/course_model.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/olahraga/volley/detail_volley_page.dart';
+import 'package:flutter_application_sport_apps/presentation/widget/course_card.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,6 +18,12 @@ class CoursePage extends StatefulWidget {
 }
 
 class _CoursePageState extends State<CoursePage> {
+  void initState() {
+    // TODO: implement initState
+    context.read<CourseCubit>().fetchCourse();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget volleyWidget() {
@@ -163,68 +173,11 @@ class _CoursePageState extends State<CoursePage> {
       );
     }
 
-    Widget videoTutorial() {
-      return Container(
-        child: Row(
-          children: [
-            Container(
-              child: Image.asset(
-                'assets/image_video_tutorial.png',
-                width: 170,
-              ),
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'VOLLEY',
-                  style: GoogleFonts.montserrat(
-                    color: const Color(0xff0076CB),
-                    fontWeight: FontWeight.w400,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Get.to(const DetailCourseApplikasiPage());
-                  },
-                  child: Container(
-                    width: 120,
-                    height: 30,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: const Color(0xff0076CB),
-                        )),
-                    child: Center(
-                      child: Text(
-                        'Start',
-                        style: GoogleFonts.montserrat(
-                          color: const Color(0xff0076CB),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                RichText(
-                  text: TextSpan(
-                      text: 'Good and true\nhomeworkot\n',
-                      style: GoogleFonts.montserrat(
-                          color: Colors.blue, fontSize: 12)),
-                )
-              ],
-            )
-          ],
-        ),
+    Widget videoTutorial(List<CourseModel> course) {
+      return Column(
+        children: course.map((CourseModel course) {
+          return CourseCard(course);
+        }).toList(),
       );
     }
 
@@ -265,7 +218,26 @@ class _CoursePageState extends State<CoursePage> {
           const SizedBox(
             height: 20,
           ),
-          videoTutorial(),
+          BlocConsumer<CourseCubit, CourseState>(
+            listener: (context, state) {
+              if (state is CourseFailed) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: Colors.red,
+                    content: Text(state.error),
+                  ),
+                );
+              }
+            },
+            builder: (context, state) {
+              if (state is CourseSuccess) {
+                return videoTutorial(state.course);
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            },
+          ),
         ],
       ),
       bottomNavigationBar: SizedBox(

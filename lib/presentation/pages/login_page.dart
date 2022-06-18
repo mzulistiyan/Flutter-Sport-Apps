@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_sport_apps/cubit/auth_cubit.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/home_page.dart';
+import 'package:flutter_application_sport_apps/presentation/pages/main_page.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/registrasi_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
@@ -26,6 +27,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Container(
           padding: const EdgeInsets.all(24),
@@ -93,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                 BlocConsumer<AuthCubit, AuthState>(
                   listener: (context, state) {
                     if (state is AuthSuccess) {
-                      Get.off(HomePage());
+                      Get.off(MainPage());
                     } else if (state is AuthFailed) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(

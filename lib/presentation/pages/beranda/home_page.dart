@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_sport_apps/cubit/olahraga_cubit.dart';
 import 'package:flutter_application_sport_apps/models/olahraga_model.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/course/course_page.dart';
+import 'package:flutter_application_sport_apps/presentation/pages/beranda/course/crud/create_course_page.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/mailbox/mailbox_page.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/menu/logout_page.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/menu/profile_page.dart';
@@ -267,7 +268,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => Get.to(UploadingImageToFirebaseStorage()),
+                      onTap: () => Get.to(CreateOlahraga()),
                       child: Container(
                         width: 18,
                         height: 18,
@@ -444,9 +445,6 @@ class _HomePageState extends State<HomePage> {
                   )
                 ],
               ),
-              SizedBox(
-                height: 120,
-              ),
               Column(
                 children: [
                   GestureDetector(
@@ -510,6 +508,48 @@ class _HomePageState extends State<HomePage> {
                     height: 20,
                   ),
                   GestureDetector(
+                    onTap: () => Get.to(CreateOlahraga()),
+                    child: const Icon(
+                      Icons.create_new_folder_outlined,
+                      size: 50,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    'Create Olahraga',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  GestureDetector(
+                    onTap: () => Get.to(CreateCoursePage()),
+                    child: const Icon(
+                      Icons.create_new_folder_outlined,
+                      size: 50,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    'Create Course',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  GestureDetector(
                     onTap: () => Get.to(const LogoutPage()),
                     child: const Icon(
                       Icons.power_settings_new_outlined,
@@ -546,7 +586,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   const SizedBox(
-                    height: 80,
+                    height: 20,
                   ),
                   Image.asset(
                     'assets/icon_sport.png',
@@ -663,6 +703,29 @@ class _HomePageState extends State<HomePage> {
                 ],
               )
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _showDialog() {
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 0),
+      child: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            fit: BoxFit.fill,
+            image: AssetImage(
+              'assets/background_show_dialog.png',
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [],
           ),
         ),
       ),

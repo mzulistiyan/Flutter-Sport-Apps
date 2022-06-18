@@ -33,4 +33,24 @@ class OlahragaCubit extends Cubit<OlahragaState> {
       emit(OlahragaFailed(e.toString()));
     }
   }
+
+  void updateUserAccept(String docid, OlahragaModel olahraga) async {
+    try {
+      emit(OlahragaLoading());
+      await OlahragaService().updateOlahraga(docid, olahraga);
+      emit(OlahragaSuccess([]));
+    } catch (e) {
+      emit(OlahragaFailed(e.toString()));
+    }
+  }
+
+  void deleteOlahraga(String docid) async {
+    try {
+      emit(OlahragaLoading());
+      await OlahragaService().deleteOlahraga(docid);
+      emit(OlahragaSuccess([]));
+    } catch (e) {
+      emit(OlahragaFailed(e.toString()));
+    }
+  }
 }

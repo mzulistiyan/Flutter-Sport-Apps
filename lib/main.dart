@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_sport_apps/cubit/auth_cubit.dart';
+import 'package:flutter_application_sport_apps/cubit/course_cubit.dart';
 import 'package:flutter_application_sport_apps/cubit/olahraga_cubit.dart';
+import 'package:flutter_application_sport_apps/cubit/page_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:get/get.dart';
@@ -29,6 +31,12 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => OlahragaCubit(),
+        ),
+        BlocProvider(
+          create: (context) => PageCubit(),
+        ),
+        BlocProvider(
+          create: (context) => CourseCubit(),
         ),
       ],
       child: const GetMaterialApp(

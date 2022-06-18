@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_sport_apps/cubit/auth_cubit.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/home_page.dart';
+import 'package:flutter_application_sport_apps/presentation/pages/main_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 
@@ -87,7 +88,7 @@ class RegistrasiPage extends StatelessWidget {
               listener: (context, state) {
                 // TODO: implement listener
                 if (state is AuthSuccess) {
-                  Get.to(HomePage());
+                  Get.to(MainPage());
                 } else if (state is AuthFailed) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

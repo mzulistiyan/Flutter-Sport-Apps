@@ -1,19 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_application_sport_apps/models/course_model.dart';
 import 'package:flutter_application_sport_apps/models/olahraga_model.dart';
 import 'package:intl/intl.dart';
 
-class OlahragaService {
+class CourseService {
   static String? uid;
-  CollectionReference _subscriptionReference =
-      FirebaseFirestore.instance.collection('olahragas');
+  CollectionReference _courseReference =
+      FirebaseFirestore.instance.collection('courses');
 
-  Future<void> createOlahraga(
-    OlahragaModel olahraga,
+  Future<void> createCourse(
+    CourseModel olahraga,
   ) async {
     try {
-      _subscriptionReference.add({
+      _courseReference.add({
         'imageUrl': olahraga.imageUrl,
         'name': olahraga.name,
         'detail': olahraga.detail,
@@ -23,37 +24,37 @@ class OlahragaService {
     }
   }
 
-  Future<List<OlahragaModel>> fetchOlahraga() async {
+  Future<List<CourseModel>> fetchCourse() async {
     try {
-      QuerySnapshot result = await _subscriptionReference.get();
-      List<OlahragaModel> foods = result.docs.map((e) {
-        return OlahragaModel.fromJson(e.id, e.data() as Map<String, dynamic>);
+      QuerySnapshot result = await _courseReference.get();
+      List<CourseModel> course = result.docs.map((e) {
+        return CourseModel.fromJson(e.id, e.data() as Map<String, dynamic>);
       }).toList();
 
-      return foods;
+      return course;
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> updateOlahraga(String docid, OlahragaModel olahraga) async {
+  Future<void> updateCourse(String docid, CourseModel course) async {
     try {
-      return _subscriptionReference
+      return _courseReference
           .doc(docid)
           .update({
-            'name': olahraga.name,
-            'detail': olahraga.detail,
+            'name': course.name,
+            'detail': course.detail,
           })
-          .then((value) => print("User Updated"))
+          .then((value) => print("Course Updated"))
           .catchError((error) => print("Failed to update data: $error"));
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> deleteOlahraga(String docid) async {
+  Future<void> deleteCourse(String docid) async {
     try {
-      return _subscriptionReference
+      return _courseReference
           .doc(docid)
           .delete()
           .then((value) => print("Deleted"))

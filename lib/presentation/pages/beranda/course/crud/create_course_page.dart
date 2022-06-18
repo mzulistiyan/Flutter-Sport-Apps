@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_sport_apps/cubit/course_cubit.dart';
 import 'package:flutter_application_sport_apps/cubit/olahraga_cubit.dart';
+import 'package:flutter_application_sport_apps/models/course_model.dart';
 import 'package:flutter_application_sport_apps/models/olahraga_model.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/main_page.dart';
 import 'package:flutter_application_sport_apps/services/firebase_api.dart';
@@ -14,12 +16,12 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../home_page.dart';
 
-class CreateOlahraga extends StatefulWidget {
+class CreateCoursePage extends StatefulWidget {
   @override
-  _CreateOlahragaState createState() => _CreateOlahragaState();
+  _CreateCoursePageState createState() => _CreateCoursePageState();
 }
 
-class _CreateOlahragaState extends State<CreateOlahraga> {
+class _CreateCoursePageState extends State<CreateCoursePage> {
   TextEditingController nameController = TextEditingController(text: '');
   TextEditingController detailController = TextEditingController(text: '');
   File? _imageFile;
@@ -39,7 +41,7 @@ class _CreateOlahragaState extends State<CreateOlahraga> {
         iconTheme: IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
         title: Text(
-          'Create Olahraga',
+          'Create Course',
           style: GoogleFonts.roboto(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -77,7 +79,7 @@ class _CreateOlahragaState extends State<CreateOlahraga> {
                 controller: detailController,
                 decoration: InputDecoration(
                   border: InputBorder.none,
-                  hintText: 'Detail Olahraga',
+                  hintText: 'Detail Course',
                   filled: true,
                   contentPadding:
                       const EdgeInsets.only(left: 14.0, bottom: 6.0, top: 8.0),
@@ -118,11 +120,11 @@ class _CreateOlahragaState extends State<CreateOlahraga> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
               SizedBox(height: 48),
-              BlocConsumer<OlahragaCubit, OlahragaState>(
+              BlocConsumer<CourseCubit, CourseState>(
                 listener: (context, state) {
-                  if (state is OlahragaSuccess) {
+                  if (state is CourseSuccess) {
                     Get.to(MainPage());
-                  } else if (state is OlahragaFailed) {
+                  } else if (state is CourseFailed) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         backgroundColor: Colors.red,
@@ -132,7 +134,7 @@ class _CreateOlahragaState extends State<CreateOlahraga> {
                   }
                 },
                 builder: (context, state) {
-                  if (state is OlahragaLoading) {
+                  if (state is CourseLoading) {
                     return Container(
                       alignment: Alignment.center,
                       margin: const EdgeInsets.only(top: 30),
@@ -168,11 +170,10 @@ class _CreateOlahragaState extends State<CreateOlahraga> {
                         final snapshot = await task!.whenComplete(() {});
                         final urlDownload = await snapshot.ref.getDownloadURL();
 
-                        context.read<OlahragaCubit>().createOlahraga(
-                            OlahragaModel(
-                                name: nameController.text,
-                                detail: detailController.text,
-                                imageUrl: urlDownload));
+                        context.read<CourseCubit>().createCourse(CourseModel(
+                            name: nameController.text,
+                            detail: detailController.text,
+                            imageUrl: urlDownload));
                         print('Download-Link: ');
                       },
                     ),

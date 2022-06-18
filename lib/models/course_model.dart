@@ -1,18 +1,18 @@
-class OlahragaModel {
+class CourseModel {
   final String id;
   final String name;
   final String detail;
   final String imageUrl;
 
-  OlahragaModel({
+  CourseModel({
     this.id = '',
     this.name = '',
     this.detail = '',
     this.imageUrl = '',
   });
 
-  factory OlahragaModel.fromJson(String id, Map<String, dynamic> json) =>
-      OlahragaModel(
+  factory CourseModel.fromJson(String id, Map<String, dynamic> json) =>
+      CourseModel(
         id: id.toString(),
         name: json['name'],
         detail: json['detail'],

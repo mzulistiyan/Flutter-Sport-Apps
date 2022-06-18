@@ -19,8 +19,7 @@ class AuthService {
           await UserService().getUserById(userCredential.user!.uid);
       return user;
     } catch (e) {
-      print('Hallo');
-      throw e;
+      rethrow;
     }
   }
 
