@@ -13,6 +13,7 @@ import 'package:flutter_application_sport_apps/presentation/pages/beranda/olahra
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/onprogres/onprogres_page.dart';
 
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/search_page.dart';
+import 'package:flutter_application_sport_apps/presentation/pages/beranda/simple_notification.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/beranda/time_line_page.dart';
 import 'package:flutter_application_sport_apps/presentation/widget/olahraga_card.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -588,10 +589,15 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(
                     height: 20,
                   ),
-                  Image.asset(
-                    'assets/icon_sport.png',
-                    width: 50,
-                    height: 50,
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(LocalNotifications());
+                    },
+                    child: Image.asset(
+                      'assets/icon_sport.png',
+                      width: 50,
+                      height: 50,
+                    ),
                   )
                 ],
               )

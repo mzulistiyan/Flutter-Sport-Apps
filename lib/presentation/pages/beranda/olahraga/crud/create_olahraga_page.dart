@@ -8,11 +8,13 @@ import 'package:flutter_application_sport_apps/models/olahraga_model.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/main_page.dart';
 import 'package:flutter_application_sport_apps/services/firebase_api.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../home_page.dart';
+import '../../screen.dart';
 
 class CreateOlahraga extends StatefulWidget {
   @override
@@ -25,10 +27,59 @@ class _CreateOlahragaState extends State<CreateOlahraga> {
   File? _imageFile;
   UploadTask? task;
   File? file;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   ///NOTE: Only supported on Android & iOS
   ///Needs image_picker plugin {https://pub.dev/packages/image_picker}
   final picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    requestPermissions();
+    var androidSettings = AndroidInitializationSettings('app_icon');
+
+    var initSetttings = InitializationSettings(
+      android: androidSettings,
+    );
+    flutterLocalNotificationsPlugin.initialize(initSetttings,
+        onSelectNotification: onClickNotification);
+  }
+
+  void requestPermissions() {
+    flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+  }
+
+  Future? onClickNotification(String? payload) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+      return DestinationScreen(
+        payload: payload!,
+      );
+    }));
+  }
+
+  Future<void> showSimpleNotification() async {
+    var androidDetails = AndroidNotificationDetails(
+      'id',
+      'channel ',
+      priority: Priority.high,
+      importance: Importance.max,
+      icon: 'app_icon',
+    );
+    var iOSDetails = IOSNotificationDetails();
+    var platformDetails = new NotificationDetails(android: androidDetails);
+    await flutterLocalNotificationsPlugin.show(0, 'Sport Apps Notification',
+        'Success Create Olahraga', platformDetails,
+        payload: 'Destination Screen (Simple Notification)');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -173,6 +224,7 @@ class _CreateOlahragaState extends State<CreateOlahraga> {
                                 name: nameController.text,
                                 detail: detailController.text,
                                 imageUrl: urlDownload));
+                        showSimpleNotification();
                         print('Download-Link: ');
                       },
                     ),
