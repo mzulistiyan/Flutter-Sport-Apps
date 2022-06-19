@@ -44,7 +44,7 @@ class _RunningPageState extends State<RunningPage> {
                   height: 20,
                 ),
                 GestureDetector(
-                  onTap: () => Get.to(const DetailRunningPage()),
+                  onTap: () => Get.to(DetailRunningPage()),
                   child: Container(
                     width: 120,
                     height: 30,

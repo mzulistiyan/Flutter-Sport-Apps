@@ -1,16 +1,57 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class DetailRunningPage extends StatefulWidget {
-  const DetailRunningPage({Key? key}) : super(key: key);
-
   @override
-  State<DetailRunningPage> createState() => _DetailRunningPageState();
+  _DetailRunningPageState createState() => _DetailRunningPageState();
 }
 
 class _DetailRunningPageState extends State<DetailRunningPage> {
+  Completer<GoogleMapController> _controller = Completer();
   bool? check = false;
+  static const LatLng _center = const LatLng(-6.9733165, 107.6303302);
+
+  final Set<Marker> _markers = {};
+
+  LatLng _lastMapPosition = _center;
+
+  MapType _currentMapType = MapType.normal;
+
+  void _onMapTypeButtonPressed() {
+    setState(() {
+      _currentMapType = _currentMapType == MapType.normal
+          ? MapType.satellite
+          : MapType.normal;
+    });
+  }
+
+  void _onAddMarkerButtonPressed() {
+    setState(() {
+      _markers.add(Marker(
+        // This marker id can be anything that uniquely identifies each marker.
+        markerId: MarkerId(_lastMapPosition.toString()),
+        position: _lastMapPosition,
+        infoWindow: InfoWindow(
+          title: 'Really cool place',
+          snippet: '5 Star Rating',
+        ),
+        icon: BitmapDescriptor.defaultMarker,
+      ));
+    });
+  }
+
+  void _onCameraMove(CameraPosition position) {
+    _lastMapPosition = position.target;
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    _controller.complete(controller);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,13 +98,33 @@ class _DetailRunningPageState extends State<DetailRunningPage> {
                       ),
                     ),
                     const SizedBox(
-                      height: 10,
+                      height: 20,
                     ),
-                    Image.asset(
-                      'assets/image_maps.png',
-                      width: double.infinity,
-                      height: 230,
-                    )
+                    Container(
+                      width: 300,
+                      height: 220,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: Offset(0, 3), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                      child: GoogleMap(
+                        onMapCreated: _onMapCreated,
+                        initialCameraPosition: CameraPosition(
+                          target: _center,
+                          zoom: 11.0,
+                        ),
+                        mapType: _currentMapType,
+                        markers: _markers,
+                        onCameraMove: _onCameraMove,
+                      ),
+                    ),
                   ],
                 ),
               ),
