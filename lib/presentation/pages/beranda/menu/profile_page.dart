@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_sport_apps/cubit/auth_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -94,12 +96,19 @@ class ProfilePage extends StatelessWidget {
                               style: GoogleFonts.montserrat(
                                   color: const Color(0xff0076CB)),
                             ),
-                            Text(
-                              'Amalia Putri Amara',
-                              style: GoogleFonts.montserrat(
-                                color: const Color(0xff0076CB),
-                                fontWeight: FontWeight.w500,
-                              ),
+                            BlocBuilder<AuthCubit, AuthState>(
+                              builder: (context, state) {
+                                if (state is AuthSuccess) {
+                                  return Text(
+                                    state.user.name,
+                                    style: GoogleFonts.montserrat(
+                                      color: const Color(0xff0076CB),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  );
+                                }
+                                return SizedBox();
+                              },
                             ),
                           ],
                         ),

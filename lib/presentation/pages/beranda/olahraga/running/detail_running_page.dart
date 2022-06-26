@@ -6,21 +6,19 @@ import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import '../../../../../constant.dart';
-
 class DetailRunningPage extends StatefulWidget {
   @override
   _DetailRunningPageState createState() => _DetailRunningPageState();
 }
 
 class _DetailRunningPageState extends State<DetailRunningPage> {
-  Completer<GoogleMapController> _controller = Completer();
+  final Completer<GoogleMapController> _controller = Completer();
   bool? check = false;
-  static const LatLng center = const LatLng(-6.9733165, 107.6303302);
-  static const LatLng sourceLocation = const LatLng(-6.9447417, 107.6420533);
-  static const LatLng destination = const LatLng(-6.9733165, 107.6303302);
+  static const LatLng center = LatLng(-6.9733165, 107.6303302);
+  static const LatLng sourceLocation = LatLng(-6.9709457, 107.6453798);
+  static const LatLng destination = LatLng(-6.9733165, 107.6303302);
   final Set<Marker> _markers = {};
-
+  late final BitmapDescriptor pinLocationIcon;
   LatLng _lastMapPosition = center;
 
   MapType _currentMapType = MapType.normal;
@@ -31,6 +29,12 @@ class _DetailRunningPageState extends State<DetailRunningPage> {
           ? MapType.satellite
           : MapType.normal;
     });
+  }
+
+  void setCustomMapPin() async {
+    pinLocationIcon = await BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/1_qvmBfugDqSF1lmv5fD62aQ.png');
   }
 
   void _onAddMarkerButtonPressed() {
@@ -57,13 +61,15 @@ class _DetailRunningPageState extends State<DetailRunningPage> {
   }
 
   List<LatLng> polylineCoordinates = [];
+
   void getPolyPoints() async {
     PolylinePoints polyLinePoints = PolylinePoints();
 
     PolylineResult result = await polyLinePoints.getRouteBetweenCoordinates(
-        google_api_key,
-        PointLatLng(sourceLocation.latitude, sourceLocation.longitude),
-        PointLatLng(destination.latitude, destination.longitude));
+      "AIzaSyBpxLJTQopsqBWynr1X4r7Sv0jNDnRnLeY",
+      PointLatLng(sourceLocation.latitude, sourceLocation.longitude),
+      PointLatLng(destination.latitude, destination.longitude),
+    );
 
     if (result.points.isNotEmpty) {
       result.points.forEach(
@@ -71,8 +77,15 @@ class _DetailRunningPageState extends State<DetailRunningPage> {
           LatLng(point.latitude, point.longitude),
         ),
       );
+      setState(() {});
     }
-    setState(() {});
+  }
+
+  @override
+  void initState() {
+    setCustomMapPin();
+    getPolyPoints();
+    super.initState();
   }
 
   @override
@@ -137,29 +150,29 @@ class _DetailRunningPageState extends State<DetailRunningPage> {
                       ],
                     ),
                     child: GoogleMap(
-                      onMapCreated: _onMapCreated,
-                      initialCameraPosition: CameraPosition(
+                      initialCameraPosition: const CameraPosition(
                         target: center,
-                        zoom: 11.0,
+                        zoom: 13.0,
                       ),
                       polylines: {
                         Polyline(
-                          polylineId: PolylineId("route"),
+                          polylineId: const PolylineId("route"),
                           points: polylineCoordinates,
-                          color: Colors.black,
+                          color: Colors.blue,
                           width: 6,
+                          visible: true,
                         )
                       },
                       mapType: _currentMapType,
                       markers: {
-                        Marker(
+                        const Marker(
                             markerId: MarkerId("Source"),
                             position: sourceLocation),
-                        Marker(
-                            markerId: MarkerId("Destination"),
-                            position: destination),
+                        const Marker(
+                          markerId: MarkerId("Destination"),
+                          position: destination,
+                        ),
                       },
-                      onCameraMove: _onCameraMove,
                     ),
                   ),
                 ]),
