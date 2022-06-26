@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../../../../../constant.dart';
 
 class DetailRunningPage extends StatefulWidget {
   @override
@@ -13,11 +16,12 @@ class DetailRunningPage extends StatefulWidget {
 class _DetailRunningPageState extends State<DetailRunningPage> {
   Completer<GoogleMapController> _controller = Completer();
   bool? check = false;
-  static const LatLng _center = const LatLng(-6.9733165, 107.6303302);
-
+  static const LatLng center = const LatLng(-6.9733165, 107.6303302);
+  static const LatLng sourceLocation = const LatLng(-6.9447417, 107.6420533);
+  static const LatLng destination = const LatLng(-6.9733165, 107.6303302);
   final Set<Marker> _markers = {};
 
-  LatLng _lastMapPosition = _center;
+  LatLng _lastMapPosition = center;
 
   MapType _currentMapType = MapType.normal;
 
@@ -50,6 +54,25 @@ class _DetailRunningPageState extends State<DetailRunningPage> {
 
   void _onMapCreated(GoogleMapController controller) {
     _controller.complete(controller);
+  }
+
+  List<LatLng> polylineCoordinates = [];
+  void getPolyPoints() async {
+    PolylinePoints polyLinePoints = PolylinePoints();
+
+    PolylineResult result = await polyLinePoints.getRouteBetweenCoordinates(
+        google_api_key,
+        PointLatLng(sourceLocation.latitude, sourceLocation.longitude),
+        PointLatLng(destination.latitude, destination.longitude));
+
+    if (result.points.isNotEmpty) {
+      result.points.forEach(
+        (PointLatLng point) => polylineCoordinates.add(
+          LatLng(point.latitude, point.longitude),
+        ),
+      );
+    }
+    setState(() {});
   }
 
   @override
@@ -86,47 +109,60 @@ class _DetailRunningPageState extends State<DetailRunningPage> {
                   borderRadius: BorderRadius.circular(16)),
               child: Container(
                 padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    Text(
-                      'RUTE',
-                      style: GoogleFonts.montserrat(
-                        color: Colors.blue,
-                        fontSize: 14,
-                        decoration: TextDecoration.underline,
-                        fontWeight: FontWeight.w400,
-                      ),
+                child: Column(children: [
+                  Text(
+                    'RUTE',
+                    style: GoogleFonts.montserrat(
+                      color: Colors.blue,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                      fontWeight: FontWeight.w400,
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Container(
-                      width: 300,
-                      height: 220,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      child: GoogleMap(
-                        onMapCreated: _onMapCreated,
-                        initialCameraPosition: CameraPosition(
-                          target: _center,
-                          zoom: 11.0,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    width: 300,
+                    height: 220,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: Offset(0, 3), // changes position of shadow
                         ),
-                        mapType: _currentMapType,
-                        markers: _markers,
-                        onCameraMove: _onCameraMove,
-                      ),
+                      ],
                     ),
-                  ],
-                ),
+                    child: GoogleMap(
+                      onMapCreated: _onMapCreated,
+                      initialCameraPosition: CameraPosition(
+                        target: center,
+                        zoom: 11.0,
+                      ),
+                      polylines: {
+                        Polyline(
+                          polylineId: PolylineId("route"),
+                          points: polylineCoordinates,
+                          color: Colors.black,
+                          width: 6,
+                        )
+                      },
+                      mapType: _currentMapType,
+                      markers: {
+                        Marker(
+                            markerId: MarkerId("Source"),
+                            position: sourceLocation),
+                        Marker(
+                            markerId: MarkerId("Destination"),
+                            position: destination),
+                      },
+                      onCameraMove: _onCameraMove,
+                    ),
+                  ),
+                ]),
               ),
             ),
             const SizedBox(

@@ -3,18 +3,90 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_sport_apps/cubit/olahraga_cubit.dart';
 import 'package:flutter_application_sport_apps/cubit/page_cubit.dart';
 import 'package:flutter_application_sport_apps/models/olahraga_model.dart';
+import 'package:flutter_application_sport_apps/presentation/pages/beranda/screen.dart';
 import 'package:flutter_application_sport_apps/presentation/pages/main_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../home_page.dart';
 
-class UpdateOlahragaPage extends StatelessWidget {
+class UpdateOlahragaPage extends StatefulWidget {
   final OlahragaModel olahraga;
   UpdateOlahragaPage(this.olahraga, {Key? key}) : super(key: key);
+
+  @override
+  State<UpdateOlahragaPage> createState() => _UpdateOlahragaPageState();
+}
+
+class _UpdateOlahragaPageState extends State<UpdateOlahragaPage> {
   TextEditingController nameController = TextEditingController(text: '');
+
   TextEditingController detailController = TextEditingController(text: '');
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  @override
+  void initState() {
+    super.initState();
+    requestPermissions();
+    var androidSettings = AndroidInitializationSettings('app_icon');
+
+    var initSetttings = InitializationSettings(
+      android: androidSettings,
+    );
+    flutterLocalNotificationsPlugin.initialize(initSetttings,
+        onSelectNotification: onClickNotification);
+  }
+
+  void requestPermissions() {
+    flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+  }
+
+  Future? onClickNotification(String? payload) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+      return DestinationScreen(
+        payload: payload!,
+      );
+    }));
+  }
+
+  Future<void> showSimpleNotificationUpdate() async {
+    var androidDetails = AndroidNotificationDetails(
+      'id',
+      'channel ',
+      priority: Priority.high,
+      importance: Importance.max,
+      icon: 'app_icon',
+    );
+    var iOSDetails = IOSNotificationDetails();
+    var platformDetails = new NotificationDetails(android: androidDetails);
+    await flutterLocalNotificationsPlugin.show(0, 'Sport Apps Notification',
+        'Success Update Olahraga', platformDetails,
+        payload: 'Destination Screen (Simple Notification)');
+  }
+
+  Future<void> showSimpleNotificationDelete() async {
+    var androidDetails = AndroidNotificationDetails(
+      'id',
+      'channel ',
+      priority: Priority.high,
+      importance: Importance.max,
+      icon: 'app_icon',
+    );
+    var iOSDetails = IOSNotificationDetails();
+    var platformDetails = new NotificationDetails(android: androidDetails);
+    await flutterLocalNotificationsPlugin.show(0, 'Sport Apps Notification',
+        'Success Delete Olahraga', platformDetails,
+        payload: 'Destination Screen (Simple Notification)');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +95,7 @@ class UpdateOlahragaPage extends StatelessWidget {
         iconTheme: IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
         title: Text(
-          'Detail Olahraga ${olahraga.name}',
+          'Detail Olahraga ${widget.olahraga.name}',
           style: GoogleFonts.roboto(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -37,7 +109,7 @@ class UpdateOlahragaPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Image.network(
-              olahraga.imageUrl.toString(),
+              widget.olahraga.imageUrl.toString(),
               width: 100,
               height: 150,
             ),
@@ -65,7 +137,7 @@ class UpdateOlahragaPage extends StatelessWidget {
                 width: 150,
                 child: Center(
                   child: Text(
-                    olahraga.name,
+                    widget.olahraga.name,
                     style: GoogleFonts.roboto(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -98,7 +170,7 @@ class UpdateOlahragaPage extends StatelessWidget {
                 width: 150,
                 child: Center(
                   child: Text(
-                    olahraga.detail,
+                    widget.olahraga.detail,
                     style: GoogleFonts.roboto(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -253,8 +325,10 @@ class UpdateOlahragaPage extends StatelessWidget {
                                                   context
                                                       .read<OlahragaCubit>()
                                                       .deleteOlahraga(
-                                                        olahraga.id.toString(),
+                                                        widget.olahraga.id
+                                                            .toString(),
                                                       );
+                                                  showSimpleNotificationDelete();
                                                 },
                                                 child: Text(
                                                   'Delete',
@@ -387,11 +461,12 @@ class UpdateOlahragaPage extends StatelessWidget {
                         child: Text('Update Data'),
                         onPressed: () {
                           context.read<OlahragaCubit>().updateUserAccept(
-                              olahraga.id.toString(),
+                              widget.olahraga.id.toString(),
                               OlahragaModel(
                                 name: nameController.text,
                                 detail: detailController.text,
                               ));
+                          showSimpleNotificationUpdate();
                         },
                       ),
                     );

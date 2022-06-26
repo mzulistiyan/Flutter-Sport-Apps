@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_sport_apps/cubit/course_cubit.dart';
 import 'package:flutter_application_sport_apps/models/course_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../main_page.dart';
+import '../screen.dart';
 
 class DetailCourseApplikasiPage extends StatefulWidget {
   final CourseModel course;
@@ -22,6 +24,70 @@ class _DetailCourseApplikasiPageState extends State<DetailCourseApplikasiPage> {
   bool? check = false;
   TextEditingController nameController = TextEditingController(text: '');
   TextEditingController detailController = TextEditingController(text: '');
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  @override
+  void initState() {
+    super.initState();
+    requestPermissions();
+    var androidSettings = AndroidInitializationSettings('app_icon');
+
+    var initSetttings = InitializationSettings(
+      android: androidSettings,
+    );
+    flutterLocalNotificationsPlugin.initialize(initSetttings,
+        onSelectNotification: onClickNotification);
+  }
+
+  void requestPermissions() {
+    flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+  }
+
+  Future? onClickNotification(String? payload) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+      return DestinationScreen(
+        payload: payload!,
+      );
+    }));
+  }
+
+  Future<void> showSimpleNotificationDelete() async {
+    var androidDetails = AndroidNotificationDetails(
+      'id',
+      'channel ',
+      priority: Priority.high,
+      importance: Importance.max,
+      icon: 'app_icon',
+    );
+    var iOSDetails = IOSNotificationDetails();
+    var platformDetails = new NotificationDetails(android: androidDetails);
+    await flutterLocalNotificationsPlugin.show(
+        0, 'Sport Apps Notification', 'Success Delete Course', platformDetails,
+        payload: 'Destination Screen (Simple Notification)');
+  }
+
+  Future<void> showSimpleNotificationUpdate() async {
+    var androidDetails = AndroidNotificationDetails(
+      'id',
+      'channel ',
+      priority: Priority.high,
+      importance: Importance.max,
+      icon: 'app_icon',
+    );
+    var iOSDetails = IOSNotificationDetails();
+    var platformDetails = new NotificationDetails(android: androidDetails);
+    await flutterLocalNotificationsPlugin.show(
+        0, 'Sport Apps Notification', 'Success Update Course', platformDetails,
+        payload: 'Destination Screen (Simple Notification)');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,6 +198,7 @@ class _DetailCourseApplikasiPageState extends State<DetailCourseApplikasiPage> {
                                                   .deleteCourse(
                                                     widget.course.id.toString(),
                                                   );
+                                              showSimpleNotificationDelete();
                                             },
                                             child: Text(
                                               'Delete',
@@ -367,6 +434,7 @@ class _DetailCourseApplikasiPageState extends State<DetailCourseApplikasiPage> {
                                 name: nameController.text,
                                 detail: detailController.text,
                               ));
+                          showSimpleNotificationUpdate();
                         },
                       ),
                     );
